@@ -20,8 +20,8 @@ const Sidebar = ({ isDrawerOpen, handleSidebarClick }) => {
       </Button>
       <Drawer open={isDrawerOpen}>
         <List>
-          {pages.map((ele) => (
-            <ListItem divider>
+          {pages.map((ele, index) => (
+            <ListItem divider key={index}>
               <ListItemButton onClick={handleSidebarClick}>
                 <ListItemText primary={ele}></ListItemText>
               </ListItemButton>
