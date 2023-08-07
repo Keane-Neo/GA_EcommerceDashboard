@@ -3,6 +3,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
+import { DevTool } from "@hookform/devtools";
 import {
   Box,
   Button,
@@ -18,6 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import Sidebar from "../components/Sidebar";
 
 const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
@@ -135,20 +137,98 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
     setCustomerData(updatedCustomerData);
   };
 
-  const handleFormChange = (e) => {
-    const updatedFormData = { ...formData, [e.target.name]: e.target.value };
-    setFormData(updatedFormData);
-  };
+  // const handleFormChange = (e) => {
+  //   const updatedFormData = { ...formData, [e.target.name]: e.target.value };
+  //   setFormData(updatedFormData);
+  // };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const onSubmit = (formData) => {
     setIsDialogOpen(false);
     setCustomerData((prev) => {
       return [...prev, formData];
     });
+    console.log({ ...register });
   };
+
+  const form = useForm();
+  const { register, control, handleSubmit, formState } = form;
+  const { errors } = formState;
+
   return (
     <Box>
+      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+        <DialogTitle>Create a New User</DialogTitle>
+        <DialogContent sx={{ height: "80%" }}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+            style={{ display: "flex", flexDirection: "column", gap: "5px" }}
+          >
+            <TextField
+              size="small"
+              type="text"
+              placeholder="Name"
+              {...register("name", {
+                required: "Name is required",
+              })}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
+            <TextField
+              size="small"
+              type="email"
+              placeholder="Email"
+              {...register("email", {
+                pattern: {
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message: "Invalid email format",
+                },
+                required: "Email is required",
+              })}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+            />
+            <TextField
+              size="small"
+              type="text"
+              placeholder="Mobile"
+              {...register("mobile", {
+                required: "Mobile Number is required",
+                minLength: {
+                  value: 8,
+                  message: "At least 8 characters",
+                },
+                pattern: {
+                  value: /^[0-9]*$/,
+                  message: "Only numbers allowed",
+                },
+              })}
+              error={!!errors.mobile}
+              helperText={errors.mobile?.message}
+            />
+            <TextField
+              size="small"
+              type="date"
+              placeholder="Join Date"
+              {...register("date", {
+                valueAsDate: true,
+              })}
+            />
+            <TextField
+              size="small"
+              type="number"
+              placeholder="Orders"
+              {...register("orders", {
+                valueAsNumber: true,
+              })}
+            />
+            <Button type="submit" variant="contained" color="primary">
+              Submit
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <DevTool control={control} />
       <Box
         sx={{
           display: "flex",
@@ -175,7 +255,7 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
             Create New User
           </Button>
         </Box>
-        <Table sx={{}}>
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>#</TableCell>
@@ -252,60 +332,6 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
           </TableBody>
         </Table>
       </Box>
-      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
-        <DialogTitle>Create a New User</DialogTitle>
-        <DialogContent sx={{ height: "80%" }}>
-          <form
-            onSubmit={handleSubmit}
-            style={{ display: "flex", flexDirection: "column", gap: "5px" }}
-          >
-            <TextField
-              size="small"
-              type="text"
-              value={formData.name}
-              name="name"
-              onChange={(e) => handleFormChange(e)}
-              placeholder="Name"
-              required
-            />
-            <TextField
-              size="small"
-              type="email"
-              value={formData.email}
-              name="email"
-              onChange={(e) => handleFormChange(e)}
-              placeholder="Email"
-            />
-            <TextField
-              size="small"
-              type="text"
-              value={formData.mobile}
-              name="mobile"
-              onChange={(e) => handleFormChange(e)}
-              placeholder="Mobile"
-            />
-            <TextField
-              size="small"
-              type="date"
-              value={formData.joinDate}
-              name="joinDate"
-              onChange={(e) => handleFormChange(e)}
-              placeholder="Join Date"
-            />
-            <TextField
-              size="small"
-              type="text"
-              value={formData.orderCount}
-              name="orderCount"
-              onChange={(e) => handleFormChange(e)}
-              placeholder="Orders"
-            />
-            <Button type="submit" variant="contained">
-              Submit
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
     </Box>
   );
 };
