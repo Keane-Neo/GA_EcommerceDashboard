@@ -9,9 +9,25 @@ import {
   ListItemText,
 } from "@mui/material";
 import React from "react";
+import { NavLink } from "react-router-dom";
 
 const Sidebar = ({ isDrawerOpen, handleSidebarClick }) => {
-  const pages = ["Home", "Customers", "Orders", "Products"];
+  // const pages = ["Home", "Customers", "Orders", "Products"];
+  const pages = [
+    { name: "Home", link: "/" },
+    {
+      name: "Customers",
+      link: "/customers",
+    },
+    {
+      name: "Orders",
+      link: "/orders",
+    },
+    {
+      name: "Products",
+      link: "/products",
+    },
+  ];
 
   return (
     <Box onClick={handleSidebarClick}>
@@ -22,9 +38,11 @@ const Sidebar = ({ isDrawerOpen, handleSidebarClick }) => {
         <List>
           {pages.map((ele, index) => (
             <ListItem divider key={index}>
-              <ListItemButton onClick={handleSidebarClick}>
-                <ListItemText primary={ele}></ListItemText>
-              </ListItemButton>
+              <NavLink to={ele.link}>
+                <ListItemButton onClick={handleSidebarClick}>
+                  <ListItemText primary={ele.name}></ListItemText>
+                </ListItemButton>
+              </NavLink>
             </ListItem>
           ))}
         </List>
