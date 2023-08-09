@@ -3,7 +3,6 @@ import ClearIcon from "@mui/icons-material/Clear";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
-import { DevTool } from "@hookform/devtools";
 import {
   Box,
   Button,
@@ -18,25 +17,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+
+import NewUserForm from "../components/NewUserForm";
 import Sidebar from "../components/Sidebar";
 
 const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
-  // const [isEdit, setIsEdit] = useState(false);
-  // const [isDelete, setIsDelete] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    id: 3,
-    name: "",
-    email: "",
-    mobile: "",
-    joinDate: "",
-    orderCount: "",
-    isSelected: false,
-    isEdit: false,
-    isDelete: false,
-  });
+  const [editRow, setEditRow] = useState({ name: "", email: "", mobile: "" });
   const [customerData, setCustomerData] = useState([
     {
       id: 1,
@@ -62,8 +50,18 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
     },
   ]);
 
+  useEffect(() => {
+    console.log("hello");
+  }, [customerData]);
+
   const handleEditClick = (row) => {
     updateIsEditTrue(row);
+    setEditRow({
+      ...editRow,
+      name: row.name,
+      email: row.email,
+      mobile: row.mobile,
+    });
   };
 
   const handleDeleteClick = (row) => {
@@ -73,12 +71,26 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
   const handleConfirmClick = (row) => {
     // change back to edit / delete icon
     if (row.isDelete) {
-      updateIsDeleteFalse(row);
       const newData = customerData.filter((data) => row.id !== data.id);
       setCustomerData(newData);
     } else if (row.isEdit) {
-      // check format of input
-      updateIsEditFalse(row);
+      // TODO: check format of input??
+      const updatedCustomerData = customerData.map((data) => {
+        if (row.id === data.id) {
+          return {
+            ...data,
+            name: editRow.name,
+            email: editRow.email,
+            mobile: editRow.mobile,
+            isEdit: false,
+            isSelected: false,
+          };
+        } else return data;
+      });
+      setCustomerData(updatedCustomerData);
+      setEditRow((prev) => {
+        return { ...prev, name: "", email: "", mobile: "" };
+      });
     }
   };
 
@@ -87,7 +99,6 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
     if (row.isDelete) {
       updateIsDeleteFalse(row);
     } else if (row.isEdit) {
-      // check format of input
       updateIsEditFalse(row);
     }
   };
@@ -128,107 +139,25 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
     setCustomerData(updatedCustomerData);
   };
 
-  const handleChange = (row, e) => {
-    const updatedCustomerData = customerData.map((data) => {
-      if (row.id === data.id) {
-        return { ...data, [e.target.name]: e.target.value };
-      } else return data;
-    });
-    setCustomerData(updatedCustomerData);
+  const handleChange = (e) => {
+    const updatedRow = { ...editRow, [e.target.name]: e.target.value };
+    setEditRow(updatedRow);
   };
 
-  // const handleFormChange = (e) => {
-  //   const updatedFormData = { ...formData, [e.target.name]: e.target.value };
-  //   setFormData(updatedFormData);
-  // };
-
-  const onSubmit = (formData) => {
+  const onSubmitNewUser = (formData) => {
     setIsDialogOpen(false);
     setCustomerData((prev) => {
       return [...prev, formData];
     });
-    console.log({ ...register });
   };
-
-  const form = useForm();
-  const { register, control, handleSubmit, formState } = form;
-  const { errors } = formState;
-
   return (
     <Box>
       <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
         <DialogTitle>Create a New User</DialogTitle>
         <DialogContent sx={{ height: "80%" }}>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            noValidate
-            style={{ display: "flex", flexDirection: "column", gap: "5px" }}
-          >
-            <TextField
-              size="small"
-              type="text"
-              placeholder="Name"
-              {...register("name", {
-                required: "Name is required",
-              })}
-              error={!!errors.name}
-              helperText={errors.name?.message}
-            />
-            <TextField
-              size="small"
-              type="email"
-              placeholder="Email"
-              {...register("email", {
-                pattern: {
-                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: "Invalid email format",
-                },
-                required: "Email is required",
-              })}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-            />
-            <TextField
-              size="small"
-              type="text"
-              placeholder="Mobile"
-              {...register("mobile", {
-                required: "Mobile Number is required",
-                minLength: {
-                  value: 8,
-                  message: "At least 8 characters",
-                },
-                pattern: {
-                  value: /^[0-9]*$/,
-                  message: "Only numbers allowed",
-                },
-              })}
-              error={!!errors.mobile}
-              helperText={errors.mobile?.message}
-            />
-            <TextField
-              size="small"
-              type="date"
-              placeholder="Join Date"
-              {...register("date", {
-                valueAsDate: true,
-              })}
-            />
-            <TextField
-              size="small"
-              type="number"
-              placeholder="Orders"
-              {...register("orders", {
-                valueAsNumber: true,
-              })}
-            />
-            <Button type="submit" variant="contained" color="primary">
-              Submit
-            </Button>
-          </form>
+          <NewUserForm onSubmitNewUser={onSubmitNewUser} />
         </DialogContent>
       </Dialog>
-      <DevTool control={control} />
       <Box
         sx={{
           display: "flex",
@@ -241,7 +170,7 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            width: " 100%",
+            width: "100%",
           }}
         >
           <Sidebar
@@ -276,8 +205,8 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
                     <TextField
                       name="name"
                       type="text"
-                      onChange={(e) => handleChange(row, e)}
-                      value={row.name}
+                      onChange={(e) => handleChange(e)}
+                      value={editRow.name}
                       size="small"
                     ></TextField>
                   ) : (
@@ -289,8 +218,8 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
                     <TextField
                       name="email"
                       type="email"
-                      onChange={(e) => handleChange(row, e)}
-                      value={row.email}
+                      onChange={(e) => handleChange(e)}
+                      value={editRow.email}
                       size="small"
                     ></TextField>
                   ) : (
@@ -302,8 +231,8 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
                     <TextField
                       name="mobile"
                       type="text"
-                      onChange={(e) => handleChange(row, e)}
-                      value={row.mobile}
+                      onChange={(e) => handleChange(e)}
+                      value={editRow.mobile}
                       size="small"
                     ></TextField>
                   ) : (
@@ -315,14 +244,17 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
                 <TableCell>
                   {row.isSelected ? (
                     <CheckIcon
-                      type="submit"
+                      sx={{ color: "green", fontSize: "1.4rem" }}
                       onClick={() => handleConfirmClick(row)}
                     />
                   ) : (
                     <EditIcon onClick={() => handleEditClick(row)} />
                   )}
                   {row.isSelected ? (
-                    <ClearIcon onClick={() => handleCloseClick(row)} />
+                    <ClearIcon
+                      sx={{ color: "red", fontSize: "1.4rem" }}
+                      onClick={() => handleCloseClick(row)}
+                    />
                   ) : (
                     <DeleteIcon onClick={() => handleDeleteClick(row)} />
                   )}
