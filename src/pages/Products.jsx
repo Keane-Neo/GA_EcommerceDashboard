@@ -19,7 +19,8 @@ import headphoneImage from "../images/headphones.jpeg";
 
 const Products = ({ isDrawerOpen, handleSidebarClick }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [ProductsData, setProductsData] = useState([
+  const [editItem, setEditItem] = useState({ description: "", price: "" });
+  const [productsData, setProductsData] = useState([
     {
       id: 1,
       description: "headphones",
@@ -51,6 +52,11 @@ const Products = ({ isDrawerOpen, handleSidebarClick }) => {
 
   const handleEditClick = (row) => {
     updateIsEditTrue(row);
+    setEditItem({
+      ...editItem,
+      description: row.description,
+      price: row.price,
+    });
   };
 
   const handleDeleteClick = (row) => {
@@ -60,12 +66,25 @@ const Products = ({ isDrawerOpen, handleSidebarClick }) => {
   const handleConfirmClick = (row) => {
     // change back to edit / delete icon
     if (row.isDelete) {
-      updateIsDeleteFalse(row);
-      const newData = ProductsData.filter((data) => row.id !== data.id);
+      const newData = productsData.filter((data) => row.id !== data.id);
       setProductsData(newData);
     } else if (row.isEdit) {
       // check format of input
-      updateIsEditFalse(row);
+      const updatedProductsData = productsData.map((data) => {
+        if (row.id === data.id) {
+          return {
+            ...data,
+            description: editItem.description,
+            price: editItem.price,
+            isEdit: false,
+            isSelected: false,
+          };
+        } else return data;
+      });
+      setProductsData(updatedProductsData);
+      setEditItem((prev) => {
+        return { ...prev, description: "", price: "" };
+      });
     }
   };
 
@@ -80,7 +99,7 @@ const Products = ({ isDrawerOpen, handleSidebarClick }) => {
   };
 
   const updateIsEditFalse = (row) => {
-    const updatedProductsData = ProductsData.map((data) => {
+    const updatedProductsData = productsData.map((data) => {
       if (row.id === data.id) {
         return { ...data, isEdit: false, isSelected: false };
       } else return data;
@@ -89,7 +108,7 @@ const Products = ({ isDrawerOpen, handleSidebarClick }) => {
   };
 
   const updateIsEditTrue = (row) => {
-    const updatedProductsData = ProductsData.map((data) => {
+    const updatedProductsData = productsData.map((data) => {
       if (row.id === data.id) {
         return { ...data, isEdit: true, isSelected: true };
       } else return data;
@@ -98,7 +117,7 @@ const Products = ({ isDrawerOpen, handleSidebarClick }) => {
   };
 
   const updateIsDeleteFalse = (row) => {
-    const updatedProductsData = ProductsData.map((data) => {
+    const updatedProductsData = productsData.map((data) => {
       if (row.id === data.id) {
         return { ...data, isDelete: false, isSelected: false };
       } else return data;
@@ -107,7 +126,7 @@ const Products = ({ isDrawerOpen, handleSidebarClick }) => {
   };
 
   const updateIsDeleteTrue = (row) => {
-    const updatedProductsData = ProductsData.map((data) => {
+    const updatedProductsData = productsData.map((data) => {
       if (row.id === data.id) {
         return { ...data, isDelete: true, isSelected: true };
       } else return data;
@@ -115,13 +134,9 @@ const Products = ({ isDrawerOpen, handleSidebarClick }) => {
     setProductsData(updatedProductsData);
   };
 
-  const handleChange = (row, e) => {
-    const updatedProductsData = ProductsData.map((data) => {
-      if (row.id === data.id) {
-        return { ...data, [e.target.name]: e.target.value };
-      } else return data;
-    });
-    setProductsData(updatedProductsData);
+  const handleChange = (e) => {
+    const updatedRow = { ...editItem, [e.target.name]: e.target.value };
+    setEditItem(updatedRow);
   };
 
   const onSubmitNewProduct = (formData) => {
@@ -175,7 +190,7 @@ const Products = ({ isDrawerOpen, handleSidebarClick }) => {
           justifyContent: "center",
         }}
       >
-        {ProductsData.map((item) => {
+        {productsData.map((item) => {
           return (
             <Card
               sx={{
@@ -186,7 +201,6 @@ const Products = ({ isDrawerOpen, handleSidebarClick }) => {
               }}
               key={item.id}
             >
-              {/* <CardContent sx={{ padding: "5px" }}> */}
               <Stack direction="column" alignItems="center">
                 <ImageListItem
                   sx={{
@@ -202,8 +216,8 @@ const Products = ({ isDrawerOpen, handleSidebarClick }) => {
                   <TextField
                     name="description"
                     type="text"
-                    onChange={(e) => handleChange(item, e)}
-                    value={item.description}
+                    onChange={(e) => handleChange(e)}
+                    value={editItem.description}
                     size="small"
                   ></TextField>
                 ) : (
@@ -216,9 +230,23 @@ const Products = ({ isDrawerOpen, handleSidebarClick }) => {
                   </Typography>
                 )}
 
-                <Typography variant="h4" fontSize="0.9rem">
-                  ${item.price}
-                </Typography>
+                {item.isEdit ? (
+                  <TextField
+                    name="price"
+                    type="text"
+                    onChange={(e) => handleChange(e)}
+                    value={editItem.price}
+                    size="small"
+                  ></TextField>
+                ) : (
+                  <Typography
+                    variant="h3"
+                    fontSize="1rem"
+                    sx={{ margin: "0 auto" }}
+                  >
+                    ${item.price}
+                  </Typography>
+                )}
                 <Stack direction="row">
                   {item.isSelected ? (
                     <CheckIcon
