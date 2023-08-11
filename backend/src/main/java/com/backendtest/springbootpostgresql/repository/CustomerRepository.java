@@ -16,5 +16,10 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     @Query(value = "UPDATE customers SET password = ?2 WHERE customer_id = ?1", nativeQuery = true)
     public void changePassword(UUID customerID, String newPassword);
 
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE customers SET customer_name = ?1, email = ?2, contact_no = ?3  WHERE customer_id = ?4", nativeQuery = true)
+    public void updateCurrentCustomer(String name, String email, String contactNum, UUID customerID);
+
     Optional<Customer> findByEmail(String email);
 }

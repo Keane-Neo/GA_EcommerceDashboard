@@ -21,8 +21,7 @@ public class Order {
     @Column(name = "order_id")
     private UUID orderID;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
@@ -35,11 +34,15 @@ public class Order {
 
     @Column(name = "no_of_items")
     private int numOfItems;
+//
+//    @Column(name = "customer_id")
+//    private UUID customerID;
 
     public Order(Customer customer, ZonedDateTime orderDate, float totalPrice, int numOfItems) {
         this.customer = customer;
         this.orderDate = orderDate;
         this.totalPrice = totalPrice;
         this.numOfItems = numOfItems;
+//        this.customerID = customerID;
     }
 }
