@@ -25,6 +25,7 @@ import NewUserForm from "../components/NewUserForm";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const Orders = ({ isDrawerOpen, handleSidebarClick }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -38,10 +39,20 @@ const Orders = ({ isDrawerOpen, handleSidebarClick }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const { customerID } = useParams();
+
   useEffect(() => {
     const getData = async () => {
+      console.log(customerID);
+      let res = {};
       try {
-        const res = await axios.get("http://localhost:8080/admin/orders");
+        if (customerID === "all") {
+          res = await axios.get("http://localhost:8080/admin/orders");
+        } else {
+          res = await axios.get(
+            `http://localhost:8080/customer/orders/${customerID}`
+          );
+        }
         setOrderData(res.data);
         console.log(res.data);
         const orderDataState = res.data.map((item) => {

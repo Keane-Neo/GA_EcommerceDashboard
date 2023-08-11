@@ -325,7 +325,9 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
                     </TableCell>
                     <TableCell>{row.joinDate}</TableCell>
                     <TableCell>
-                      <NavLink to="/orders">{row.orderCount}</NavLink>
+                      <NavLink to={`/orders/${row.customerID}`}>
+                        {row.orderCount}
+                      </NavLink>
                     </TableCell>
                     <TableCell>
                       {customerDataState.filter((data) => {

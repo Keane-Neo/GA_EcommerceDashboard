@@ -21,7 +21,7 @@ const Sidebar = ({ isDrawerOpen, handleSidebarClick }) => {
     },
     {
       name: "Orders",
-      link: "/orders",
+      link: "/orders/all",
     },
     {
       name: "Products",

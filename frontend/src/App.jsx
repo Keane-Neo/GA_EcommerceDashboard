@@ -32,7 +32,7 @@ function App() {
           }
         ></Route>
         <Route
-          path="/orders"
+          path="/orders/:customerID"
           element={
             <Orders
               isDrawerOpen={isDrawerOpen}
