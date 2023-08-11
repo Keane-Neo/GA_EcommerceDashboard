@@ -231,23 +231,35 @@ const Orders = ({ isDrawerOpen, handleSidebarClick }) => {
             isDrawerOpen={isDrawerOpen}
             handleSidebarClick={handleSidebarClick}
           />
-          <Typography variant="h1" fontSize="2rem">
+          <Typography variant="h1" fontSize="3rem" fontWeight="bold">
             Orders
           </Typography>
           <Button variant="outlined" onClick={() => setIsDialogOpen(true)}>
             Create New Order
           </Button>
         </Box>
-        <TableContainer>
+        <TableContainer sx={{ marginTop: "30px" }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Order ID</TableCell>
-                <TableCell>Customer Name</TableCell>
-                <TableCell>Number of Items</TableCell>
-                <TableCell>Total Price</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Action</TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Order ID
+                </TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Customer Name
+                </TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Number of Items
+                </TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Total Price
+                </TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Date
+                </TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Action
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

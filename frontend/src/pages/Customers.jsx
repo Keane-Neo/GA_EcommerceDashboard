@@ -249,24 +249,38 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
             isDrawerOpen={isDrawerOpen}
             handleSidebarClick={handleSidebarClick}
           />
-          <Typography variant="h1" fontSize="2rem">
+          <Typography variant="h1" fontSize="3rem" fontWeight="bold">
             Customers
           </Typography>
           <Button variant="outlined" onClick={() => setIsDialogOpen(true)}>
             Create New User
           </Button>
         </Box>
-        <TableContainer>
+        <TableContainer sx={{ marginTop: "30px" }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Customer ID</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Mobile</TableCell>
-                <TableCell>Member Since</TableCell>
-                <TableCell>Orders</TableCell>
-                <TableCell>Action</TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Customer ID
+                </TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Name
+                </TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Email
+                </TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Mobile
+                </TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Member Since
+                </TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Orders
+                </TableCell>
+                <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>
+                  Action
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
