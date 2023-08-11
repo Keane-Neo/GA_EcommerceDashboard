@@ -9,10 +9,13 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Pagination,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   TextField,
   Typography,
@@ -21,122 +24,146 @@ import React, { useEffect, useState } from "react";
 
 import NewUserForm from "../components/NewUserForm";
 import Sidebar from "../components/Sidebar";
+import axios from "axios";
 
 const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editRow, setEditRow] = useState({ name: "", email: "", mobile: "" });
-  const [customerData, setCustomerData] = useState([
-    {
-      id: 1,
-      name: "Keane",
-      email: "Keane@abc.com",
-      mobile: "999999",
-      joinDate: "01/01/2022",
-      orderCount: "4",
-      isSelected: false,
-      isEdit: false,
-      isDelete: false,
-    },
-    {
-      id: 2,
-      name: "Keane",
-      email: "Keane@abc.com",
-      mobile: "999999",
-      joinDate: "01/01/2022",
-      orderCount: "4",
-      isSelected: false,
-      isEdit: false,
-      isDelete: false,
-    },
-  ]);
+  const [editRow, setEditRow] = useState({
+    customerName: "",
+    email: "",
+    contactNum: "",
+  });
+  const [customerDataState, setCustomerDataState] = useState([]);
+  const [customerData, setCustomerData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
-    console.log("hello");
-  }, [customerData]);
+    const getData = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/admin/customers");
+        setCustomerData(res.data);
+        console.log(res.data);
+        const customerDataState = res.data.map((item) => {
+          return {
+            customerID: item.customerID,
+            isSelected: false,
+            isEdit: false,
+            isDelete: false,
+          };
+        });
+        setCustomerDataState(customerDataState);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getData();
+  }, []);
 
-  const handleEditClick = (row) => {
-    updateIsEditTrue(row);
+  const handleEditClick = (id) => {
+    updateIsEditTrue(id);
+    const selectedCustomerData = customerData.filter(
+      (data) => data.customerID === id
+    );
+
     setEditRow({
       ...editRow,
-      name: row.name,
-      email: row.email,
-      mobile: row.mobile,
+      customerName: selectedCustomerData[0].customerName,
+      email: selectedCustomerData[0].email,
+      contactNum: selectedCustomerData[0].contactNum,
     });
   };
 
-  const handleDeleteClick = (row) => {
-    updateIsDeleteTrue(row);
+  const handleDeleteClick = (id) => {
+    updateIsDeleteTrue(id);
   };
 
-  const handleConfirmClick = (row) => {
+  const handleConfirmClick = async (id) => {
     // change back to edit / delete icon
-    if (row.isDelete) {
-      const newData = customerData.filter((data) => row.id !== data.id);
+    const selectedCustomerDataState = customerDataState.filter(
+      (data) => id === data.customerID
+    );
+
+    if (selectedCustomerDataState[0].isDelete) {
+      const newData = customerData.filter(
+        (data) => selectedCustomerDataState[0].customerID !== data.customerID
+      );
       setCustomerData(newData);
-    } else if (row.isEdit) {
+      try {
+        await axios.delete(`http://localhost:8080/admin/customers/${id}`);
+      } catch (err) {
+        console.log(err);
+      }
+    } else if (selectedCustomerDataState[0].isEdit) {
       // TODO: check format of input??
       const updatedCustomerData = customerData.map((data) => {
-        if (row.id === data.id) {
+        if (selectedCustomerDataState[0].customerID === data.customerID) {
           return {
             ...data,
-            name: editRow.name,
+            customerName: editRow.customerName,
             email: editRow.email,
-            mobile: editRow.mobile,
-            isEdit: false,
-            isSelected: false,
+            contactNum: editRow.contactNum,
           };
         } else return data;
       });
       setCustomerData(updatedCustomerData);
+      try {
+        await axios.put(`http://localhost:8080/admin/customers/${id}`, {
+          customerName: editRow.customerName,
+          email: editRow.email,
+          contactNum: editRow.contactNum,
+        });
+      } catch (err) {
+        console.log(err);
+      }
+      updateIsEditFalse(id);
       setEditRow((prev) => {
-        return { ...prev, name: "", email: "", mobile: "" };
+        return { ...prev, customerName: "", email: "", contactNum: "" };
       });
     }
   };
 
-  const handleCloseClick = (row) => {
-    // change back to edit / delete icon
-    if (row.isDelete) {
-      updateIsDeleteFalse(row);
-    } else if (row.isEdit) {
-      updateIsEditFalse(row);
-    }
+  const handleCloseClick = () => {
+    const updatedCustomerDataState = customerDataState.map((data) => {
+      return { ...data, isSelected: false, isEdit: false, isDelete: false };
+    });
+    setCustomerDataState(updatedCustomerDataState);
   };
 
-  const updateIsEditFalse = (row) => {
-    const updatedCustomerData = customerData.map((data) => {
-      if (row.id === data.id) {
+  const updateIsEditFalse = (id) => {
+    const updatedCustomerDataState = customerDataState.map((data) => {
+      if (id === data.customerID) {
         return { ...data, isEdit: false, isSelected: false };
       } else return data;
     });
-    setCustomerData(updatedCustomerData);
+    setCustomerDataState(updatedCustomerDataState);
   };
 
-  const updateIsEditTrue = (row) => {
-    const updatedCustomerData = customerData.map((data) => {
-      if (row.id === data.id) {
+  const updateIsEditTrue = (id) => {
+    const updatedCustomerDataState = customerDataState.map((data) => {
+      if (id === data.customerID) {
         return { ...data, isEdit: true, isSelected: true };
       } else return data;
     });
-    setCustomerData(updatedCustomerData);
+    setCustomerDataState(updatedCustomerDataState);
   };
 
-  const updateIsDeleteFalse = (row) => {
-    const updatedCustomerData = customerData.map((data) => {
-      if (row.id === data.id) {
+  const updateIsDeleteFalse = (id) => {
+    const updatedCustomerDataState = customerDataState.map((data) => {
+      if (id === data.customerID) {
         return { ...data, isDelete: false, isSelected: false };
       } else return data;
     });
-    setCustomerData(updatedCustomerData);
+    setCustomerDataState(updatedCustomerDataState);
   };
 
-  const updateIsDeleteTrue = (row) => {
-    const updatedCustomerData = customerData.map((data) => {
-      if (row.id === data.id) {
+  const updateIsDeleteTrue = (id) => {
+    const updatedCustomerDataState = customerDataState.map((data) => {
+      if (id === data.customerID) {
         return { ...data, isDelete: true, isSelected: true };
       } else return data;
     });
-    setCustomerData(updatedCustomerData);
+    setCustomerDataState(updatedCustomerDataState);
   };
 
   const handleChange = (e) => {
@@ -146,9 +173,40 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
 
   const onSubmitNewUser = (formData) => {
     setIsDialogOpen(false);
-    setCustomerData((prev) => {
-      return [...prev, formData];
+    const newUUID = crypto.randomUUID();
+    setCustomerDataState((prev) => {
+      return [
+        ...prev,
+        {
+          customerID: newUUID,
+          isSelected: false,
+          isEdit: false,
+          isDelete: false,
+        },
+      ];
     });
+    setCustomerData((prev) => {
+      return [
+        ...prev,
+        {
+          customerID: newUUID,
+          customerName: formData.name,
+          email: formData.email,
+          contactNum: formData.mobile,
+          joinDate: formData.date.toLocaleDateString(),
+          orderCount: formData.orders,
+        },
+      ];
+    });
+  };
+
+  const handlePageChange = (e, p) => {
+    setCurrentPage(p);
+  };
+
+  const handleRowsPerPageChange = (e) => {
+    setRowsPerPage(parseInt(e.target.value, 10));
+    setCurrentPage(0);
   };
   return (
     <Box>
@@ -184,85 +242,115 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
             Create New User
           </Button>
         </Box>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>#</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Mobile</TableCell>
-              <TableCell>Member Since</TableCell>
-              <TableCell>Orders</TableCell>
-              <TableCell>Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {customerData.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.id}</TableCell>
-                <TableCell>
-                  {row.isEdit ? (
-                    <TextField
-                      name="name"
-                      type="text"
-                      onChange={(e) => handleChange(e)}
-                      value={editRow.name}
-                      size="small"
-                    ></TextField>
-                  ) : (
-                    row.name
-                  )}
-                </TableCell>
-                <TableCell>
-                  {row.isEdit ? (
-                    <TextField
-                      name="email"
-                      type="email"
-                      onChange={(e) => handleChange(e)}
-                      value={editRow.email}
-                      size="small"
-                    ></TextField>
-                  ) : (
-                    row.email
-                  )}
-                </TableCell>
-                <TableCell>
-                  {row.isEdit ? (
-                    <TextField
-                      name="mobile"
-                      type="text"
-                      onChange={(e) => handleChange(e)}
-                      value={editRow.mobile}
-                      size="small"
-                    ></TextField>
-                  ) : (
-                    row.mobile
-                  )}
-                </TableCell>
-                <TableCell>{row.joinDate}</TableCell>
-                <TableCell>{row.orderCount}</TableCell>
-                <TableCell>
-                  {row.isSelected ? (
-                    <CheckIcon
-                      sx={{ color: "green", fontSize: "1.4rem" }}
-                      onClick={() => handleConfirmClick(row)}
-                    />
-                  ) : (
-                    <EditIcon onClick={() => handleEditClick(row)} />
-                  )}
-                  {row.isSelected ? (
-                    <ClearIcon
-                      sx={{ color: "red", fontSize: "1.4rem" }}
-                      onClick={() => handleCloseClick(row)}
-                    />
-                  ) : (
-                    <DeleteIcon onClick={() => handleDeleteClick(row)} />
-                  )}
-                </TableCell>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Mobile</TableCell>
+                <TableCell>Member Since</TableCell>
+                <TableCell>Orders</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {customerData
+                .slice(
+                  currentPage * rowsPerPage,
+                  currentPage * rowsPerPage + rowsPerPage
+                )
+                .map((row) => (
+                  <TableRow key={row.customerID}>
+                    <TableCell>{row.customerID}</TableCell>
+                    <TableCell>
+                      {customerDataState.filter(
+                        (data) => data.customerID === row.customerID
+                      )[0].isEdit ? (
+                        <TextField
+                          name="customerName"
+                          type="text"
+                          onChange={(e) => handleChange(e)}
+                          value={editRow.customerName}
+                          size="small"
+                        ></TextField>
+                      ) : (
+                        row.customerName
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {customerDataState.filter(
+                        (data) => data.customerID === row.customerID
+                      )[0].isEdit ? (
+                        <TextField
+                          name="email"
+                          type="email"
+                          onChange={(e) => handleChange(e)}
+                          value={editRow.email}
+                          size="small"
+                        ></TextField>
+                      ) : (
+                        row.email
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {customerDataState.filter(
+                        (data) => data.customerID === row.customerID
+                      )[0].isEdit ? (
+                        <TextField
+                          name="contactNum"
+                          type="text"
+                          onChange={(e) => handleChange(e)}
+                          value={editRow.contactNum}
+                          size="small"
+                        ></TextField>
+                      ) : (
+                        row.contactNum
+                      )}
+                    </TableCell>
+                    <TableCell>{row.joinDate}</TableCell>
+                    <TableCell>{row.orderCount}</TableCell>
+                    <TableCell>
+                      {customerDataState.filter((data) => {
+                        return data.customerID === row.customerID;
+                      })[0].isSelected ? (
+                        <CheckIcon
+                          sx={{ color: "green", fontSize: "1.4rem" }}
+                          onClick={() => handleConfirmClick(row.customerID)}
+                        />
+                      ) : (
+                        <EditIcon
+                          onClick={() => handleEditClick(row.customerID)}
+                        />
+                      )}
+                      {customerDataState.filter(
+                        (data) => data.customerID === row.customerID
+                      )[0].isSelected ? (
+                        <ClearIcon
+                          sx={{ color: "red", fontSize: "1.4rem" }}
+                          onClick={() => handleCloseClick()}
+                        />
+                      ) : (
+                        <DeleteIcon
+                          onClick={() => handleDeleteClick(row.customerID)}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={customerData.length}
+            rowsPerPage={rowsPerPage}
+            page={currentPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+          />
+        </TableContainer>
       </Box>
     </Box>
   );

@@ -62,16 +62,22 @@ const NewUserForm = ({ onSubmitNewUser }) => {
         type="date"
         placeholder="Join Date"
         {...register("date", {
+          required: "Date is required",
           valueAsDate: true,
         })}
+        error={!!errors.date}
+        helperText={errors.date?.message}
       />
       <TextField
         size="small"
         type="number"
         placeholder="Orders"
         {...register("orders", {
+          required: "Orders is required",
           valueAsNumber: true,
         })}
+        error={!!errors.orders}
+        helperText={errors.orders?.message}
       />
       <Button type="submit" variant="contained" color="primary">
         Submit
