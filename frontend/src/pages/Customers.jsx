@@ -25,6 +25,7 @@ import React, { useEffect, useState } from "react";
 import NewUserForm from "../components/NewUserForm";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
+import { NavLink } from "react-router-dom";
 
 const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -171,7 +172,7 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
     setEditRow(updatedRow);
   };
 
-  const onSubmitNewUser = (formData) => {
+  const onSubmitNewUser = async (formData) => {
     setIsDialogOpen(false);
     const newUUID = crypto.randomUUID();
     setCustomerDataState((prev) => {
@@ -198,6 +199,18 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
         },
       ];
     });
+    try {
+      await axios.post("http://localhost:8080/admin/customers", {
+        customerID: newUUID,
+        customerName: formData.name,
+        email: formData.email,
+        contactNum: formData.mobile,
+        joinDate: formData.date.toLocaleDateString(),
+        orderCount: formData.orders,
+      });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const handlePageChange = (e, p) => {
@@ -208,6 +221,7 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
     setRowsPerPage(parseInt(e.target.value, 10));
     setCurrentPage(0);
   };
+
   return (
     <Box>
       <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
@@ -246,7 +260,7 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>#</TableCell>
+                <TableCell>Customer ID</TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Email</TableCell>
                 <TableCell>Mobile</TableCell>
@@ -310,7 +324,9 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
                       )}
                     </TableCell>
                     <TableCell>{row.joinDate}</TableCell>
-                    <TableCell>{row.orderCount}</TableCell>
+                    <TableCell>
+                      <NavLink to="/orders">{row.orderCount}</NavLink>
+                    </TableCell>
                     <TableCell>
                       {customerDataState.filter((data) => {
                         return data.customerID === row.customerID;
