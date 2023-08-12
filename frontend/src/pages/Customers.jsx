@@ -149,15 +149,6 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
     setCustomerDataState(updatedCustomerDataState);
   };
 
-  const updateIsDeleteFalse = (id) => {
-    const updatedCustomerDataState = customerDataState.map((data) => {
-      if (id === data.customerID) {
-        return { ...data, isDelete: false, isSelected: false };
-      } else return data;
-    });
-    setCustomerDataState(updatedCustomerDataState);
-  };
-
   const updateIsDeleteTrue = (id) => {
     const updatedCustomerDataState = customerDataState.map((data) => {
       if (id === data.customerID) {
@@ -256,7 +247,7 @@ const Customers = ({ isDrawerOpen, handleSidebarClick }) => {
             Create New User
           </Button>
         </Box>
-        <TableContainer sx={{ marginTop: "30px" }}>
+        <TableContainer sx={{ marginTop: "30px", backgroundColor: "beige" }}>
           <Table>
             <TableHead>
               <TableRow>

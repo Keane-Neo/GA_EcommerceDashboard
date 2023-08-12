@@ -238,7 +238,7 @@ const Orders = ({ isDrawerOpen, handleSidebarClick }) => {
             Create New Order
           </Button>
         </Box>
-        <TableContainer sx={{ marginTop: "30px" }}>
+        <TableContainer sx={{ marginTop: "30px", backgroundColor: "beige" }}>
           <Table>
             <TableHead>
               <TableRow>
